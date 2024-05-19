@@ -1,5 +1,6 @@
 package br.com.oiltag.partners.entrypoint;
 
+import br.com.oiltag.partners.usecases.CreatePartnerUsecase;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpHeaders;
@@ -17,10 +18,17 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("/api/v1")
 public class CreatePartnerController {
 
+    private final CreatePartnerUsecase createPartnerUsecase;
+
+    public CreatePartnerController(CreatePartnerUsecase createPartnerUsecase) {
+        this.createPartnerUsecase = createPartnerUsecase;
+    }
+
     @PostMapping("/partners")
     public ResponseEntity<PartnerDTO> create(@RequestBody @Valid PartnerDTO partnerDTO) {
         HttpHeaders headers = new HttpHeaders();
         headers.add("Location", String.format("/api/v1/partners/%s", partnerDTO.getCnpj()));
-        return new ResponseEntity<>(partnerDTO, headers, HttpStatus.CREATED);
+        PartnerDTO createdPartner = createPartnerUsecase.createPartner(partnerDTO);
+        return new ResponseEntity<>(createdPartner, headers, HttpStatus.CREATED);
     }
 }
